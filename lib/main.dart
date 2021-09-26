@@ -1,65 +1,29 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const BingoApp());
-}
+void main() => runApp(BingoApp());
 
 class BingoApp extends StatelessWidget {
-  const BingoApp({Key? key}) : super(key: key);
-
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Bingo'),
+  Widget build(BuildContext context) => MaterialApp(
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('Bingo'),
+          ),
+          body: _BingoHome(),
         ),
-        body: const BingoHome(),
-      ),
-    );
-  }
+      );
 }
 
-class BingoHome extends StatefulWidget {
-  const BingoHome({Key? key}) : super(key: key);
-
+class _BingoHome extends StatefulWidget {
   @override
-  State<BingoHome> createState() => _BingoHomeState();
+  State<_BingoHome> createState() => _BingoHomeState();
 }
 
-class _BingoHomeState extends State<BingoHome> {
-  List<String> _history = [];
-  static const _alphabet = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z'
-  ];
-  List<String> _remaining = [..._alphabet];
-  List<List<String>> _cells = [];
+class _BingoHomeState extends State<_BingoHome> {
+  List<Alphabet> _history = [];
+  List<Alphabet> _remaining = [...Alphabet.values];
+  List<List<Alphabet>> _cells = [];
   final _cellNum = 5;
   late Size _screenSize;
   late Orientation _orientation;
@@ -136,8 +100,8 @@ class _BingoHomeState extends State<BingoHome> {
   }
 
   Widget _buildArea() => SizedBox(
-        width: _cellSize * 5,
-        height: _cellSize * 5,
+        width: _cellSize * _cellNum,
+        height: _cellSize * _cellNum,
         child: Stack(
           children: [
             _buildColumn(),
@@ -153,7 +117,7 @@ class _BingoHomeState extends State<BingoHome> {
   Widget? _buildInformationText() {
     if (_bingo) {
       return const Text(
-        "BINGO!",
+        'BINGO!',
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 60.0,
@@ -184,7 +148,8 @@ class _BingoHomeState extends State<BingoHome> {
       width: _cellSize,
       height: _cellSize,
       decoration: buildBoxDecoration(rowIndex, columnIndex),
-      child: Center(child: Text(cell, style: const TextStyle(fontSize: 18))),
+      child:
+          Center(child: Text(cell.name, style: const TextStyle(fontSize: 18))),
     );
   }
 
@@ -206,7 +171,7 @@ class _BingoHomeState extends State<BingoHome> {
     switch (_orientation) {
       case Orientation.landscape:
         return Column(children: [
-          const Center(child: Text("History", style: TextStyle(fontSize: 18))),
+          const Center(child: Text('History', style: TextStyle(fontSize: 18))),
           Container(
             height: _cellSize * 4,
             width: _cellSize * 2,
@@ -216,13 +181,13 @@ class _BingoHomeState extends State<BingoHome> {
             child: GridView.count(
               crossAxisCount: 4,
               children: List.generate(_history.length,
-                  (index) => Center(child: Text(_history[index]))),
+                  (index) => Center(child: Text(_history[index].name))),
             ),
           )
         ]);
       case Orientation.portrait:
         return Column(children: [
-          const Center(child: Text("History", style: TextStyle(fontSize: 18))),
+          const Center(child: Text('History', style: TextStyle(fontSize: 18))),
           Container(
             height: _cellSize * 2,
             width: _cellSize * 5,
@@ -232,7 +197,7 @@ class _BingoHomeState extends State<BingoHome> {
             child: GridView.count(
               crossAxisCount: 10,
               children: List.generate(_history.length,
-                  (index) => Center(child: Text(_history[index]))),
+                  (index) => Center(child: Text(_history[index].name))),
             ),
           )
         ]);
@@ -242,7 +207,7 @@ class _BingoHomeState extends State<BingoHome> {
   void _pushReset() {
     setState(() {
       _history = [];
-      _remaining = [..._alphabet];
+      _remaining = [...Alphabet.values];
       _bingo = false;
       _cells = _CellGenerator(_cellNum).generate();
     });
@@ -282,43 +247,48 @@ class _BingoHomeState extends State<BingoHome> {
 
 class _CellGenerator {
   final int _cellNum;
-  static const _alphabet = [
-    'A',
-    'B',
-    'C',
-    'D',
-    'E',
-    'F',
-    'G',
-    'H',
-    'I',
-    'J',
-    'K',
-    'L',
-    'M',
-    'N',
-    'O',
-    'P',
-    'Q',
-    'R',
-    'S',
-    'T',
-    'U',
-    'V',
-    'W',
-    'X',
-    'Y',
-    'Z'
-  ];
-  final List<String> _remaining = [..._alphabet];
+  final List<Alphabet> _remaining = [...Alphabet.values];
 
   _CellGenerator(this._cellNum);
 
-  List<List<String>> generate() {
+  List<List<Alphabet>> generate() {
     var cells = List.generate(
         _cellNum,
         (_) => List.generate(_cellNum,
             (_) => _remaining.removeAt(Random().nextInt(_remaining.length))));
     return cells;
   }
+}
+
+enum Alphabet {
+  A,
+  B,
+  C,
+  D,
+  E,
+  F,
+  G,
+  H,
+  I,
+  J,
+  K,
+  L,
+  M,
+  N,
+  O,
+  P,
+  Q,
+  R,
+  S,
+  T,
+  U,
+  V,
+  W,
+  X,
+  Y,
+  Z
+}
+
+extension on Alphabet {
+  String get name => toString().split('.').last;
 }
